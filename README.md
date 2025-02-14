@@ -3,4 +3,4 @@
 
 for opening the app first command
 --npm i
---npm start in vmd
+--npm start in cmd
