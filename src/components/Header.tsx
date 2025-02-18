@@ -1,4 +1,6 @@
+import React from 'react';
 import { LOGO_URL } from '../utils/constants';
+import { Link } from 'react-router';
 
 const Header = () => {
     return (
@@ -11,10 +13,13 @@ const Header = () => {
                     <nav className="nav-items">
                         <ul>
                             <li>
-                                <a href="#">Home</a>
+                                <Link to="/">Home</Link>
                             </li>
                             <li>
-                                <a href="#">About Us</a>
+                                <Link to="/about">About Us</Link>
+                            </li>
+                            <li>
+                                <Link to="/contact-us">ontact Us</Link>
                             </li>
                             <li>
                                 <a href="#">Cart</a>

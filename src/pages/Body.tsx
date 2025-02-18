@@ -1,6 +1,7 @@
+import React from 'react';
 import { useEffect, useState } from 'react';
-import RestaurantCard from './RestaurantCard';
-import Loader from './Loader';
+import RestaurantCard from '../components/RestaurantCard';
+import Loader from '../components/Loader';
 
 const Body = () => {
     const [restaurants, setRestaurants] = useState([]);
@@ -82,7 +83,7 @@ const Body = () => {
                         [1, 2, 3, 4, 5, 6, 7, 8, 9].map((_, index) => <Loader key={index} />)
                     ) : filteredRestaurants.length > 0 ? (
                         filteredRestaurants.map((restaurant) => (
-                            <RestaurantCard key={restaurant.id} restaurant={restaurant} />
+                            <RestaurantCard restaurant={restaurant} key={restaurant.id} />
                         ))
                     ) : (
                         <p>No restaurants found</p>
