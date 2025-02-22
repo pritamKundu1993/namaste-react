@@ -211,3 +211,9 @@ body {
         background-position: 200% 0;
     }
 }
+
+.user-class {
+    padding: 10px;
+    width: fit-content;
+    border: 1px solid black;
+}
