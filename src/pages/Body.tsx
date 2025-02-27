@@ -1,56 +1,28 @@
 import React from 'react';
-import { useEffect, useState } from 'react';
 import RestaurantCard from '../components/RestaurantCard';
 import Loader from '../components/Loader';
+import useOnlineStatus from '../utils/hooks/useOnlineStatus';
+import useRestaurants from '../utils/hooks/useRestaurants';
+import useSearch from '../utils/hooks/useSearch';
 
 const Body = () => {
-    const [restaurants, setRestaurants] = useState([]);
-    const [filteredRestaurants, setFilteredRestaurants] = useState([]);
-    const [showAll, setShowAll] = useState(true);
-    const [loading, setLoading] = useState(true);
-    const [searchText, setSearchText] = useState('');
+    const {
+        restaurants,
+        filteredRestaurants,
+        setFilteredRestaurants,
+        loading,
+        filterTopRated,
+        resetFilter,
+    } = useRestaurants();
+    const { searchText, setSearchText, handleSearch } = useSearch(
+        restaurants,
+        setFilteredRestaurants
+    );
+    const checkOnline = useOnlineStatus();
 
-    useEffect(() => {
-        fetchData();
-    }, []);
-
-    const fetchData = async () => {
-        try {
-            setLoading(true);
-            const response = await fetch(
-                'https://www.zomato.com/webroutes/getPage?page_url=/kolkata/rooftop&location=&isMobile=0'
-            );
-            const json = await response.json();
-            const fetchedRestaurants = json?.page_data?.sections?.SECTION_ENTITIES_DATA || [];
-
-            setRestaurants(fetchedRestaurants);
-            setFilteredRestaurants(fetchedRestaurants);
-        } catch (error) {
-            console.error('Error fetching data:', error);
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    const filterTopRated = () => {
-        const topRated = restaurants.filter(
-            (restaurant) => restaurant?.rating?.aggregate_rating >= 4.5
-        );
-        setFilteredRestaurants(topRated);
-        setShowAll(false);
-    };
-
-    const showAllRestaurant = () => {
-        setFilteredRestaurants(restaurants);
-        setShowAll(true);
-    };
-
-    const handleSearch = () => {
-        const filtered = restaurants.filter((restaurant) =>
-            restaurant.name.toLowerCase().includes(searchText.toLowerCase())
-        );
-        setFilteredRestaurants(filtered);
-    };
+    if (!checkOnline) {
+        return <h1>You are now offline, please check your internet connection</h1>;
+    }
 
     return (
         <main className="body">
@@ -67,12 +39,12 @@ const Body = () => {
                         Search
                     </button>
 
-                    {showAll ? (
+                    {filteredRestaurants.length === restaurants.length ? (
                         <button className="filter-button" onClick={filterTopRated}>
                             Show Top Rated
                         </button>
                     ) : (
-                        <button className="all-button" onClick={showAllRestaurant}>
+                        <button className="all-button" onClick={resetFilter}>
                             Show All Restaurants
                         </button>
                     )}

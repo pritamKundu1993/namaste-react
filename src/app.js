@@ -7,6 +7,7 @@ import ContactUs from './pages/ContactUs';
 import ErrorPage from './pages/ErrorPage';
 import ReataurantDetails from './pages/RestaurantDetails/ReataurantDetails.tsx';
 import { createBrowserRouter, RouterProvider, Outlet } from 'react-router';
+import ReataurantMenu from './components/ReataurantMenu.tsx';
 
 const AppLayout = () => {
     return (
@@ -38,6 +39,10 @@ const appRouter = createBrowserRouter([
             {
                 path: '/restaurant/:slug',
                 element: <ReataurantDetails />,
+            },
+            {
+                path: '/restaurant/:slug/menu',
+                element: <ReataurantMenu />,
             },
         ],
         errorElement: <ErrorPage />,

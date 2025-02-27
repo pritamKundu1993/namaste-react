@@ -1,49 +1,23 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { useParams, Link } from 'react-router';
 import '../RestaurantDetails/RestaurantDetails.css';
+import useRestaurantDetails from '../../utils/hooks/useRestauranDetails';
 
 const RestaurantDetails = () => {
-    const { slug } = useParams();
-    const [restaurant, setRestaurant] = useState(null);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState(null);
-    const [breadcrumbs, setBreadcrumbs] = useState([]);
-
-    console.log(slug);
-
-    useEffect(() => {
-        const fetchRestaurantDetails = async () => {
-            try {
-                const response = await fetch(
-                    `https://www.zomato.com/webroutes/getPage?page_url=/kolkata/${slug}`
-                );
-                if (!response.ok) {
-                    throw new Error('Failed to fetch restaurant details');
-                }
-                const data = await response.json();
-                setRestaurant(data?.page_data);
-                setBreadcrumbs(data?.page_data?.sections?.SECTION_BREADCRUMBS || []);
-            } catch (err) {
-                setError(err.message);
-            } finally {
-                setLoading(false);
-            }
-        };
-
-        fetchRestaurantDetails();
-    }, [slug]);
+    const { slug } = useParams<{ slug: string }>();
+    const { restaurant, loading, error, breadcrumbs } = useRestaurantDetails(slug);
 
     if (loading) return <p>Loading...</p>;
     if (error) return <p>Error: {error}</p>;
     if (!restaurant) return <p>No restaurant details available</p>;
 
-    const basicInfo = restaurant?.sections?.SECTION_BASIC_INFO;
-    const contactInfo = restaurant?.sections?.SECTION_RES_CONTACT;
-    const highlights = restaurant?.sections?.SECTION_RES_DETAILS?.HIGHLIGHTS?.highlights || [];
-    const averageCost = restaurant?.sections?.SECTION_RES_DETAILS?.CFT_DETAILS?.cfts || [];
-    const menus = restaurant?.sections?.SECTION_RES_DETAILS?.IMAGE_MENUS?.menus || [];
-    const offers = restaurant?.sections?.SECTION_DINING_OFFERS_V2?.offers || [];
-    const reviews = restaurant?.sections?.SECTION_REVIEW_HIGHLIGHTS?.entities || [];
+    const basicInfo = restaurant.sections?.SECTION_BASIC_INFO;
+    const contactInfo = restaurant.sections?.SECTION_RES_CONTACT;
+    const highlights = restaurant.sections?.SECTION_RES_DETAILS?.HIGHLIGHTS?.highlights || [];
+    const averageCost = restaurant.sections?.SECTION_RES_DETAILS?.CFT_DETAILS?.cfts || [];
+    const menus = restaurant.sections?.SECTION_RES_DETAILS?.IMAGE_MENUS?.menus || [];
+    const offers = restaurant.sections?.SECTION_DINING_OFFERS_V2?.offers || [];
+    const reviews = restaurant.sections?.SECTION_REVIEW_HIGHLIGHTS?.entities || [];
 
     return (
         <div className="restaurant-details-page">
@@ -62,36 +36,14 @@ const RestaurantDetails = () => {
             {/* Restaurant Details */}
             <h1>{basicInfo?.name || 'Restaurant Name'}</h1>
             {basicInfo?.res_thumb && (
-                <img
-                    src={basicInfo?.res_thumb}
-                    alt={basicInfo?.name || 'Restaurant'}
-                    className="restaurant-image"
-                />
+                <img src={basicInfo.res_thumb} alt={basicInfo.name} className="restaurant-image" />
             )}
 
             <p>
                 <strong>Location:</strong> {contactInfo?.address || 'Not Available'}
             </p>
             <p>
-                <strong>Zip Code:</strong> {contactInfo?.zipcode || 'N/A'}
-            </p>
-            <p>
                 <strong>Phone:</strong> {contactInfo?.phoneDetails?.phoneStr || 'Not Provided'}
-            </p>
-            <p>
-                <strong>Website:</strong>{' '}
-                {basicInfo?.canonicalUrl ? (
-                    <a
-                        href={basicInfo?.canonicalUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        aria-label="Visit restaurant's Zomato page"
-                    >
-                        {basicInfo?.name} on Zomato
-                    </a>
-                ) : (
-                    'N/A'
-                )}
             </p>
 
             {/* Cuisine */}
@@ -114,18 +66,6 @@ const RestaurantDetails = () => {
                 <strong>Dining Rating:</strong>{' '}
                 {basicInfo?.rating_new?.ratings?.DINING?.rating || 'N/A'} (
                 {basicInfo?.rating_new?.ratings?.DINING?.reviewCount || 0} Reviews)
-            </p>
-            <p>
-                <strong>Delivery Rating:</strong> Not applicable
-            </p>
-
-            {/* Operating Hours */}
-            <h2>Operating Hours</h2>
-            <p>
-                <strong>Today:</strong> {basicInfo?.timing?.timing_desc || 'Not Available'}
-            </p>
-            <p>
-                <strong>Status:</strong> {basicInfo?.res_status_text || 'Unknown'}
             </p>
 
             {/* Highlights */}
@@ -151,18 +91,26 @@ const RestaurantDetails = () => {
             )}
 
             {/* Menus */}
-            <h2>Menus</h2>
-            <ul>
+            <Link to={`/restaurant/${slug}/menu`} className="menu-link">
+                <h2>Menus</h2>
+            </Link>
+            <div className="menu-container">
                 {menus.length > 0 ? (
                     menus.map((menu, index) => (
-                        <li key={index}>
-                            {menu.label} ({menu.subtitle})
-                        </li>
+                        <div key={index} className="menu-item">
+                            <div className="menu-info">
+                                <p>
+                                    <strong>{menu.label}</strong>
+                                </p>
+                                <span>{menu.subtitle}</span>
+                            </div>
+                            <img src={menu.thumb} alt={menu.label} className="menu-thumbnail" />
+                        </div>
                     ))
                 ) : (
-                    <li>No menus available</li>
+                    <p>No menus available</p>
                 )}
-            </ul>
+            </div>
 
             {/* User Reviews */}
             <h2>User Reviews</h2>
@@ -196,10 +144,9 @@ const RestaurantDetails = () => {
                 <p>
                     You can find the restaurant on the map{' '}
                     <a
-                        href={`https://maps.zomato.com/php/staticmap?center=${contactInfo?.latitude},${contactInfo?.longitude}&zoom=16`}
+                        href={`https://maps.zomato.com/php/staticmap?center=${contactInfo.latitude},${contactInfo.longitude}&zoom=16`}
                         target="_blank"
                         rel="noopener noreferrer"
-                        aria-label="View restaurant location on Zomato maps"
                     >
                         here
                     </a>

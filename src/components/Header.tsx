@@ -1,8 +1,11 @@
 import React from 'react';
 import { LOGO_URL } from '../utils/constants';
 import { Link } from 'react-router';
+import useOnlineStatus from '../utils/hooks/useOnlineStatus';
 
 const Header = () => {
+    const checkOnline = useOnlineStatus();
+
     return (
         <header className="header-outer">
             <div className="container">
@@ -12,6 +15,7 @@ const Header = () => {
                     </div>
                     <nav className="nav-items">
                         <ul>
+                            <li>{checkOnline ? '🟢 Online' : '🔴 Offline'}</li>
                             <li>
                                 <Link to="/">Home</Link>
                             </li>
@@ -19,7 +23,7 @@ const Header = () => {
                                 <Link to="/about">About Us</Link>
                             </li>
                             <li>
-                                <Link to="/contact-us">ontact Us</Link>
+                                <Link to="/contact-us">contact Us</Link>
                             </li>
                             <li>
                                 <a href="#">Cart</a>
